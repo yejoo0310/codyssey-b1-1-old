@@ -5,7 +5,7 @@
 #### (1) 포트 변경 및 Root 원격 접속 차단
 SSH 서버의 설정값들이 들어있는 파일에서 설정 변경
 ```
-sudo vim /etc/ssh/sshd_config
+vim /etc/ssh/sshd_config
 ```
 
 20022로 포트 변경
@@ -44,6 +44,7 @@ sudo systemctl restart ssh
   PermitRootLogin no
   ```
 
+---
 ### 2. 방화벽 활성화 및 20022/tcp, 15034/tcp만 허용
 #### (1) 방화벽 설정
 기본 정책 설정: 모든 들어오는 신호는 일단 막고, 나가는 신호는 허용하는 기본 정책 설정
@@ -82,6 +83,61 @@ sudo ufw enable
   15034/tcp (v6)             ALLOW IN    Anywhere (v6)             
   ```
 
+  ---
+### 3. 계정/그룹 생성 및 디렉토리 구조 설정 및 권한 설정
+(1) 계정/그룹 생성 및 권한 설정
+
+그룹 생성
+```
+sudo groupadd agent-common
+sudo groupadd agent-core
+```
+
+사용자 생성 및 그룹 배정
+```
+sudo useradd -m -G agent-common,agent-core agent-admin
+sudo useradd -m -G agent-common,agent-core agent-dev
+sudo useradd -m -G agent-common agent-test
+```
+
+디렉토리 구조 생성
+```
+sudo mkdir -p /home/agent-admin/agent-app/upload_files
+sudo mkdir -p /home/agent-admin/agent-app/api_keys
+sudo mkdir -p /var/log/agent-app
+```
+
+(2) 수행 내역
+**사용자 생성 및 그룹 배정**
+- **확인 방법**: `id` 명령어를 통해 사용자 생성 및 소속 그룹을 확인 / `
+- **결과 데이터**
+  ```text
+  yejoo031053822@ubuntu:~$ id agent-admin
+  uid=1000(agent-admin) gid=1002(agent-admin) groups=1002(agent-admin),1000(agent-common),1001 (agent-core)
+  yejoo031053822@ubuntu:~$ id agent-dev
+  uid=1001(agent-dev) gid=1003(agent-dev) groups=1003(agent-dev),1000(agent-common),1001(agent-core)
+  yejoo031053822@ubuntu:~$ id agent-test
+  uid=1002(agent-test) gid=1004(agent-test) groups=1004(agent-test),1000(agent-common)
+  ```
+ 
+**디렉토리 구조**
+- **확인 방법**: `tree` 명령어를 이용해 특정 디렉토리 하위 구조를 트리 형태로 출력해서 확인
+- **결과 데이터**
+  ```text
+  yejoo031053822@ubuntu:~$ sudo tree /home/agent-admin/agent-app
+  /home/agent-admin/agent-app
+  ├── api_keys
+  └── upload_files
+
+  2 directories, 0 files
+  ```
+  ```text
+  yejoo031053822@ubuntu:~$ tree /var/log/agent-app
+  /var/log/agent-app
+
+  0 directories, 0 files
+  ```
+
 ## 2. 필수 증거 자료 체크리스트
 - [x] SSH 포트 변경(20022) 및 Root 원격 접속 차단 설정 확인 내역
 - [x] 방화벽(UFW 또는 firewalld) 활성화 및 20022/tcp, 15034/tcp만 허용 내역
@@ -95,3 +151,7 @@ sudo ufw enable
 ## 3. 실행 결과 (스크린샷)
 ### 방화벽 설정 실행 결과
 ![방화벽 활성화 결과](./images/ufw_status.png)
+
+### 디렉토리 구조
+![디렉토리 구조](./images/directory-structure1.png)
+![디렉토리 구조](./images/directory-structure2.png)
