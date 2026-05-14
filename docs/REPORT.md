@@ -149,6 +149,12 @@ sudo mkdir -p /var/log/agent-app
 - [ ] crontab 매분 실행 등록 및 자동 실행 확인(1분 후 로그 증가) 내역
 
 ## 3. 실행 결과 (스크린샷)
+### 포트 확인 결과
+![포트 확인 결과](./images/Port.png)
+
+### Root 원격 접속 차단
+![Root 원격 접속 차단 설정 결과](./images/PermitRootLogin.png)
+
 ### 방화벽 설정 실행 결과
 ![방화벽 활성화 결과](./images/ufw_status.png)
 
