@@ -85,7 +85,7 @@ sudo ufw enable
 
   ---
 ### 3. 계정/그룹 생성 및 디렉토리 구조 설정 및 권한 설정
-(1) 계정/그룹 생성 및 권한 설정
+#### (1) 계정/그룹 생성 및 권한 설정
 
 그룹 생성
 ```
@@ -124,7 +124,7 @@ sudo setfacl -m g:agent-core:rwx /home/agent-admin/agent-app/api_keys
 sudo chown root:agent-core /var/log/agent-app
 sudo chmod 770 /var/log/agent-app
 ```
-(2) 수행 내역
+#### (2) 수행 내역
 **사용자 생성 및 그룹 배정**
 - **확인 방법**: `id` 명령어를 통해 사용자 생성 및 소속 그룹을 확인 / `
 - **결과 데이터**
@@ -191,6 +191,56 @@ sudo chmod 770 /var/log/agent-app
   drwxrwx--- 1 root agent-core 0 May 13 17:53 /var/log/agent-app
   ```
 
+---
+### 4. 애플리케이션 실행 환경 구성 
+#### (1) 애플리케이션 실행 환경 구성
+**환경 변수 설정**
+agent-admin 계정의 설정 파일(./bashrc)에 환경 변수를 기록
+```
+agent-admin@ubuntu:~$ cat <<EOF >> ~/.bashrc
+export AGENT_HOME=/home/agent-admin/agent-app
+export AGENT_PORT=15034
+export AGENT_UPLOAD_DIR=\$AGENT_HOME/upload_files
+export AGENT_KEY_PATH=\$AGENT_HOME/api_keys/t_secret.key
+export AGENT_LOG_DIR=/var/log/agent-app
+EOF
+```
+수정한 설정을 현재 터미널 세션에 즉시 적용
+```
+agent-admin@ubuntu:~$ source ~/.bashrc
+```
+
+**키 파일 생성**
+```
+agent-admin@ubuntu:~$ echo "agent_api_key_test" > $AGENT_HOME/api_keys/t_secret.key
+```
+
+#### (2) 수행 내역
+**환경 변수 설정 확인**
+  ```
+  agent-admin@ubuntu:~$ env | grep AGENT
+  AGENT_UPLOAD_DIR=/home/agent-admin/agent-app/upload_files
+  AGENT_PORT=15034
+  AGENT_KEY_PATH=/home/agent-admin/agent-app/api_keys/t_secret.key
+  AGENT_HOME=/home/agent-admin/agent-app
+  AGENT_LOG_DIR=/var/log/agent-app
+  ```
+
+**키 파일 생성 확인**
+  ```
+  agent-admin@ubuntu:~$ cat $AGENT_HOME/api_keys/t_secret.key
+  agent_api_key_test
+  agent-admin@ubuntu:~$ 
+  ```
+
+**agent-app 파일을 우분투 서버로 옮기기**
+```
+yejoo031053822@c4r8s8 ~ % scp -P 20022 ~/Downloads/agent-app agent-admin@192.168.139.87:/home/agent-admin/agent-app/
+agent-admin@192.168.139.87's password: 
+agent-app                                     100% 7741KB  68.8MB/s   00:00    
+yejoo031053822@c4r8s8 ~ % 
+```
+
 ## 2. 필수 증거 자료 체크리스트
 - [x] SSH 포트 변경(20022) 및 Root 원격 접속 차단 설정 확인 내역
 - [x] 방화벽(UFW 또는 firewalld) 활성화 및 20022/tcp, 15034/tcp만 허용 내역
@@ -219,3 +269,9 @@ sudo chmod 770 /var/log/agent-app
 ![upload_files 권한 확인](./images/ACL-upload_files.png)
 ![api_keys 권한 확인](./images/ACL-api_keys.png)
 ![/var/log/agent-app 권한 확인](./images/agentapp.png)
+
+### 환경 변수 설정
+![환경 변수 설정 확인](./images/Environment-Variable.png)
+
+### 키 파일 생성 및 내용 확인
+![키 파일 생성 및 내용 확인](./images/key_file.png)
