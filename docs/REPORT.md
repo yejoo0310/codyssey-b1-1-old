@@ -107,6 +107,23 @@ sudo mkdir -p /home/agent-admin/agent-app/api_keys
 sudo mkdir -p /var/log/agent-app
 ```
 
+접근 권한
+- `upload_files`
+```
+sudo chown agent-admin:agent-admin /home/agent-admin/agent-app/upload_files
+sudo setfacl -m g:agent-common:rwx /home/agent-admin/agent-app/upload_files
+```
+- `api_keys`
+```
+sudo chown agent-admin:agent-admin /home/agent-admin/agent-app/api_keys
+sudo chmod 700 /home/agent-admin/agent-app/api_keys
+sudo setfacl -m g:agent-core:rwx /home/agent-admin/agent-app/api_keys
+```
+- `/var/log/agent-app`
+```
+sudo chown root:agent-core /var/log/agent-app
+sudo chmod 770 /var/log/agent-app
+```
 (2) 수행 내역
 **사용자 생성 및 그룹 배정**
 - **확인 방법**: `id` 명령어를 통해 사용자 생성 및 소속 그룹을 확인 / `
@@ -138,6 +155,42 @@ sudo mkdir -p /var/log/agent-app
   0 directories, 0 files
   ```
 
+**권한 설정**
+- **확인 방법**: `getfacl` 명령어를 이용해 소유/권한 확인
+- **결과 데이터**
+  ```text
+  yejoo031053822@ubuntu:~$ sudo getfacl /home/agent-admin/agent-app/upload_files
+  getfacl: Removing leading '/' from absolute path names
+  # file: home/agent-admin/agent-app/upload_files
+  # owner: agent-admin
+  # group: agent-admin
+  user::rwx
+  group::r-x
+  group:agent-common:rwx
+  mask::rwx
+  other::r-x
+
+  yejoo031053822@ubuntu:~$ 
+  ```
+  ```text
+  yejoo031053822@ubuntu:~$ sudo getfacl /home/agent-admin/agent-app/api_keys
+  getfacl: Removing leading '/' from absolute path names
+  # file: home/agent-admin/agent-app/api_keys
+  # owner: agent-admin
+  # group: agent-admin
+  user::rwx
+  group::---
+  group:agent-core:rwx
+  mask::rwx
+  other::---
+
+  yejoo031053822@ubuntu:~$ 
+  ```
+  ```
+  yejoo031053822@ubuntu:~$ ls -ld /var/log/agent-app
+  drwxrwx--- 1 root agent-core 0 May 13 17:53 /var/log/agent-app
+  ```
+
 ## 2. 필수 증거 자료 체크리스트
 - [x] SSH 포트 변경(20022) 및 Root 원격 접속 차단 설정 확인 내역
 - [x] 방화벽(UFW 또는 firewalld) 활성화 및 20022/tcp, 15034/tcp만 허용 내역
@@ -161,3 +214,8 @@ sudo mkdir -p /var/log/agent-app
 ### 디렉토리 구조
 ![디렉토리 구조](./images/directory-structure1.png)
 ![디렉토리 구조](./images/directory-structure2.png)
+
+### 권한 설정
+![upload_files 권한 확인](./images/ACL-upload_files.png)
+![api_keys 권한 확인](./images/ACL-api_keys.png)
+![/var/log/agent-app 권한 확인](./images/agentapp.png)
